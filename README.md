@@ -1,6 +1,17 @@
 # UR5-ROS Spherical Image Capturing and Motion Planning
 
-Simple overview of use/purpose.
+This workspace provides modules for sending a manipulator (UR5) to target objects (registered using AR tags), and performing image captures around them in mutiple layers of spherical surfaces. The robot motion planning algorithms used can either from built-in libraries or custom context.
+
+## Uses
+Any applications in which images of (an) object(s) from different angle of views need to be captured, especially when the depth of the objects needs to be specified or precisely controlled. Below are several examples:
+
+1. Collect images for neural network training in classification, detection or segmentation applications
+2. Experimental visual validations from all angle of views
+3. Image captures of new products for purpose of promotions
+
+Also, this workspace provides software setups for testing implementations of custom motion planning algorithms
+
+
 
 ## Description
 
