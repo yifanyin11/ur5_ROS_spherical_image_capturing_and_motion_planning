@@ -39,7 +39,7 @@ Contributors names and contact info
 
 Yifan Yin
 
-[email: yyin34@jhu.edu](yyin34@jhu.edu)
+Email: [yyin34@jhu.edu](yyin34@jhu.edu)
 
 ## Version History
 
