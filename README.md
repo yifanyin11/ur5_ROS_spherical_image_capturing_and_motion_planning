@@ -1,1 +1,2 @@
-# ur5_ROS_spherical_scanning
+# UR5 Spherical Image Capturing and Motion Planning for Neural Network Training Data Generation
+
