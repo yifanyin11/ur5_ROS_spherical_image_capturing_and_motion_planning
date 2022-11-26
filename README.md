@@ -38,7 +38,8 @@ command to run if program contains helper info
 Contributors names and contact info
 
 Yifan Yin
-[email](yyin34@jhu.edu)
+
+[email: yyin34@jhu.edu](yyin34@jhu.edu)
 
 ## Version History
 
