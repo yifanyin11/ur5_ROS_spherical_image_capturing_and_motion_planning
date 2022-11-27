@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+  <node 
+      pkg="vision_guided_planning" 
+      type="object2_transform_publisher"
+      name="object2_transform_publisher"  
+      output="screen" >
+  </node>
+  
+</launch>
