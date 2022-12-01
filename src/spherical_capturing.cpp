@@ -198,16 +198,16 @@ int main(int argc, char** argv)
         transform2PoseMsg(transform_target1, target_pose1);
 
         // set target
-        move_group->setPoseTarget(target_pose1);
+        move_group.setPoseTarget(target_pose1);
         // plan 
-        success = (move_group->plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
         ROS_INFO_NAMED("full_ultrasound_scan", "Visualizing plan1 (pose goal) %s", success ? "" : "FAILED");
         // visualization
         visual_tools.deleteAllMarkers();
         visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
         visual_tools.trigger();
         // move the robot
-        move_group->move();
+        move_group.move();
         ros::Duration(1.0).sleep();
 
         // ******** TODO *************
@@ -233,16 +233,16 @@ int main(int argc, char** argv)
         transform2PoseMsg(transform_target2, target_pose2);
 
         // set target
-        move_group->setPoseTarget(target_pose2);
+        move_group.setPoseTarget(target_pose2);
         // plan 
-        success = (move_group->plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
         ROS_INFO_NAMED("full_ultrasound_scan", "Visualizing plan1 (pose goal) %s", success ? "" : "FAILED");
         // visualization
         visual_tools.deleteAllMarkers();
         visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
         visual_tools.trigger();
         // move the robot
-        move_group->move();
+        move_group.move();
         ros::Duration(1.0).sleep();
 
         // ******** TODO *************

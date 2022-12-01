@@ -144,14 +144,17 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/vision_guided_planning_node.cpp)
 
-add_executable(pick_and_place_main src/pick_and_place_main.cpp)
-target_link_libraries(pick_and_place_main ${catkin_LIBRARIES})
+add_executable(object1_transform_publisher src/object1_transform_publisher.cpp)
+target_link_libraries(object1_transform_publisher ${catkin_LIBRARIES})
 
-add_executable(cube_transform_publisher src/cube_transform_publisher.cpp)
-target_link_libraries(cube_transform_publisher ${catkin_LIBRARIES})
+add_executable(object2_transform_publisher src/object2_transform_publisher.cpp)
+target_link_libraries(object2_transform_publisher ${catkin_LIBRARIES})
 
-add_executable(box_transform_publisher src/box_transform_publisher.cpp)
-target_link_libraries(box_transform_publisher ${catkin_LIBRARIES})
+add_executable(spherical_capturing src/spherical_capturing.cpp)
+target_link_libraries(spherical_capturing ${catkin_LIBRARIES})
+
+add_executable(spherical_capturing_with_MP_plugin src/spherical_capturing_with_MP_plugin.cpp)
+target_link_libraries(spherical_capturing_with_MP_plugin ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
