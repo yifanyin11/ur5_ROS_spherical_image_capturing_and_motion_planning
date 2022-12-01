@@ -14,34 +14,24 @@
 #include <tf/transform_broadcaster.h>
 #include <random>
 
-tf::Vector3 randomDirection(double offset){
+// Utils
+tf::Vector3 randomDirection(double radius){
     std::random_device rd; // obtain a random number from hardware
     std::mt19937 gen(rd()); // seed the generator
     std::default_random_engine generator;
 
-    // std::uniform_int_distribution<> distr(0, 3);
     double MIN_THETA, MAX_THETA, MIN_PHI, MAX_PHI;
 
     MIN_PHI=0.0, MAX_PHI=360.0;
 
     std::uniform_real_distribution<double> distr_real1(MIN_PHI,MAX_PHI);
-    // if (distr(gen)){
-    //     MIN_THETA=0.0, MAX_THETA=15.0, MIN_PHI=0.0, MAX_PHI=360.0;
-    // }
-    // else if{
-    //     MIN_THETA=0.0, MAX_THETA=45.0, MIN_PHI=.0, MAX_PHI=135.0;
-    // }
+    
     // ******** TODO *************
     // include angle limits to avoid collision
     double phi = distr_real1(gen);
     // std::cout << phi << std::endl;
 
-    if (phi>225.0 && phi<315.0){
-        MIN_THETA=0.0, MAX_THETA=15.0;
-    }
-    else{
-        MIN_THETA=0.0, MAX_THETA=45.0;
-    }
+    MIN_THETA=0.0, MAX_THETA=60.0;
 
     std::uniform_real_distribution<double> distr_real2(MIN_THETA,MAX_THETA);
     double theta = distr_real2(gen);
@@ -50,7 +40,7 @@ tf::Vector3 randomDirection(double offset){
     phi = phi*M_PI/180.0;
     theta = theta*M_PI/180.0;
 
-    tf::Vector3 dir(offset*cos(phi)*sin(theta), offset*sin(phi)*sin(theta), offset*cos(theta));
+    tf::Vector3 dir(radius*cos(phi)*sin(theta), radius*sin(phi)*sin(theta), radius*cos(theta));
     std::cout << "Length of dir " << dir.length() << std::endl;
     return dir;
 }
@@ -61,23 +51,34 @@ Eigen::Matrix3d skew3(tf::Vector3 x){
     return x_hat;
 }
 
-tf::Transform getTransformTipToProbe(tf::Vector3 t_tp, tf::Vector3 t_pt_0, double offset){
-    // tf::Vector3 omega = t_tp.cross(t_pt_0);
-    tf::Vector3 omega = t_pt_0.cross(-1.0*t_tp);
+tf::Transform getTransformObjToCamera(tf::Vector3 t_oc, tf::Vector3 t_co_0, double radius){
+    // tf::Vector3 omega = t_oc.cross(t_pt_0);
+    tf::Vector3 omega = t_co_0.cross(-1.0*t_oc);
     omega = omega.normalize();
-    // double theta = acos((double)t_tp.dot(-1.0*t_pt_0)/(offset*offset));
-    double theta = acos((double)t_pt_0.dot(-1.0*t_tp)/(offset*offset));
+    // double theta = acos((double)t_oc.dot(-1.0*t_pt_0)/(radius*radius));
+    double theta = acos((double)t_co_0.dot(-1.0*t_oc)/(radius*radius));
     Eigen::Matrix3d omega_hat = skew3(omega);
-    Eigen::Matrix3d R_tp_eigen = Eigen::Matrix3d::Identity() + sin(theta)*omega_hat+(1.0-cos(theta))*(omega_hat*omega_hat);
-    std::cout << "Determinant of R " << R_tp_eigen.determinant() << std::endl;
-    tf::Matrix3x3 R_tp(R_tp_eigen.coeff(0,0), R_tp_eigen.coeff(0,1), R_tp_eigen.coeff(0,2), 
-                    R_tp_eigen.coeff(1,0), R_tp_eigen.coeff(1,1), R_tp_eigen.coeff(1,2),
-                    R_tp_eigen.coeff(2,0), R_tp_eigen.coeff(2,1), R_tp_eigen.coeff(2,2));
-    tf::Transform transform_tp(R_tp, t_tp);
+    Eigen::Matrix3d R_oc_eigen = Eigen::Matrix3d::Identity() + sin(theta)*omega_hat+(1.0-cos(theta))*(omega_hat*omega_hat);
+    std::cout << "Determinant of R " << R_oc_eigen.determinant() << std::endl;
+    tf::Matrix3x3 R_oc(R_oc_eigen.coeff(0,0), R_oc_eigen.coeff(0,1), R_oc_eigen.coeff(0,2), 
+                    R_oc_eigen.coeff(1,0), R_oc_eigen.coeff(1,1), R_oc_eigen.coeff(1,2),
+                    R_oc_eigen.coeff(2,0), R_oc_eigen.coeff(2,1), R_oc_eigen.coeff(2,2));
+    tf::Transform transform_tp(R_oc, t_oc);
     return transform_tp;
 }
 
+void transform2PoseMsg(tf::Transform& transform, geometry_msgs::Pose& pose){
+    pose.position.x = transform.getOrigin().x();
+    pose.position.y = transform.getOrigin().y();
+    pose.position.z = transform.getOrigin().z();
 
+    pose.orientation.x = transform.getRotation().x();
+    pose.orientation.y = transform.getRotation().y();
+    pose.orientation.z = transform.getRotation().z();
+    pose.orientation.w = transform.getRotation().w();
+}
+
+// Main function
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "spherical_capturing");
@@ -86,11 +87,65 @@ int main(int argc, char** argv)
     spinner.start();
     ros::Rate rate(2000.0);
 
-    int num_pts = 20;
-    double offset = 0.03;
+    double min_radius = 0.05, max_radius = 0.2;
+    int num_layers = 3;
+    int max_scan_per_layer = 3;
 
-    std::ofstream world_ee;
-    std::ofstream world_probe;
+    // Register object poses
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    tf::TransformListener listener;
+
+    tf::StampedTransform transform_wo1;
+    tf::StampedTransform transform_wo2;
+    tf::StampedTransform transform_ce;
+    tf::Transform transform_target1;
+    tf::Transform transform_target2;
+    tf::Transform transform_wo1_final;
+    tf::Transform transform_wo2_final;
+
+    // lookup camera_link to ee_link
+    ROS_INFO("Lookup camera_link to ee_link ---");
+    while (node_handle.ok()){
+        try{
+            listener.lookupTransform("camera_link", "ee_link", ros::Time(0), transform_ce);
+            break;
+        }
+        catch (tf::TransformException ex){
+            ROS_ERROR("%s", ex.what());
+            ros::Duration(1.0).sleep();
+        }
+        rate.sleep();
+    }
+
+    // register object transforms
+    ROS_INFO("Waiting object1 tranform to be registered ---");
+    while (node_handle.ok()){
+        try{
+            listener.lookupTransform("world", "object1", ros::Time(0), transform_wo1);
+            break;
+        }
+        catch (tf::TransformException ex){
+            ROS_ERROR("%s", ex.what());
+            ros::Duration(1.0).sleep();
+        }
+        rate.sleep();
+    }
+    ROS_INFO("Object1 tranform found by main!");
+
+    // register box to world transform
+    ROS_INFO("Waiting object2 tranform to be registered ---");
+    while (node_handle.ok()){
+        try{
+            listener.lookupTransform("world", "object2", ros::Time(0), transform_wo2);
+            break;
+        }
+        catch (tf::TransformException ex){
+            // ROS_ERROR("%s", ex.what());
+            ros::Duration(1.0).sleep();
+        }
+        rate.sleep();
+    }
+    ROS_INFO("Object2 tranform found by main!");
 
     // MoveIt Setups
     // ^^^^^^^^^^^^^^^^^
@@ -101,6 +156,8 @@ int main(int argc, char** argv)
     // Raw pointers used to refer to the planning group 
     const robot_state::JointModelGroup* joint_model_group =
         move_group.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
+    moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+    bool success = false;
 
     // Scale movement speed
     move_group.setMaxVelocityScalingFactor(0.05);
@@ -111,129 +168,86 @@ int main(int argc, char** argv)
     namespace rvt = rviz_visual_tools;
     moveit_visual_tools::MoveItVisualTools visual_tools("world");
     visual_tools.deleteAllMarkers();
-    // Remote control is an introspection tool that allows users to step through a high level script
-    // via buttons and keyboard shortcuts in RViz
     visual_tools.loadRemoteControl();
 
-    // RViz provides many types of markers, in this demo we will use text, cylinders, and spheres
     Eigen::Isometry3d text_pose = Eigen::Isometry3d::Identity();
     text_pose.translation().z() = 1.75;
     visual_tools.publishText(text_pose, "MoveGroupInterface", rvt::WHITE, rvt::XLARGE);
-
-    // Batch publishing is used to reduce the number of messages being sent to RViz for large visualizations
     visual_tools.trigger();
 
-    // Getting Basic Information
-    std::copy(move_group.getJointModelGroupNames().begin(), move_group.getJointModelGroupNames().end(),
-                std::ostream_iterator<std::string>(std::cout, ", "));
-    std::cout << " " << std::endl;
+    // Loop for scanning the first object
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    int count = 0, layer = 0;
+    double radius = min_radius;
+    geometry_msgs::Pose target_pose1, target_pose2;
 
-    // Lookup known transforms
-    // ^^^^^^^^^^^^^^^^^^^^^^^^^
-    tf::TransformListener listener_tip;
-    tf::TransformListener listener_probe_ee;
-    tf::StampedTransform transform_wt;
-    tf::StampedTransform transform_pe;
-    tf::Transform transform_target;
-    tf::Transform transform_wp;
-    geometry_msgs::Pose target_pose;
-
-    // lookup tip frame and probe-ee_link
-    while (node_handle.ok()){
-        try{
-            listener_tip.lookupTransform("world", "tip_frame", ros::Time(0), transform_wt);
-            listener_probe_ee.lookupTransform("probe", "ee_link", ros::Time(0), transform_pe);
-
-            break;
+    while (node_handle.ok() && layer<num_layers){
+        // keep track on loop parameters
+        if (count++<max_scan_per_layer){
+            count = 0;
+            layer++;
+            radius = min_radius+layer*(max_radius-min_radius)/(num_layers-1);
         }
-        catch (tf::TransformException ex){
-            ROS_ERROR("%s", ex.what());
-            ros::Duration(1.0).sleep();
-        }
-        rate.sleep();
-    }
-
-    // Start Planning
-    // ^^^^^^^^^^^^^^^^^
-    // visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to start the demo");
-    // plan a motion for this group to a desired pose for the end-effector
-    // loop until reach the number of points being set
-    world_ee.open("/home/yyin34/world_ee.txt");
-    world_probe.open("/home/yyin34/world_probe.txt");
-
-    for (int i=0; i<num_pts; ++i){
         // Evaluate unknown transforms
-        // set t0, which is the fixed translation of probe-tip, it's also the initial translation of tip-probe
-        tf::Vector3 t_pt_0(0.0, offset, 0.0);
+        // set t0, which is the fixed translation of camera-obj, it's also the initial translation of obj-camera
+        tf::Vector3 t_co1_0(0.0, 0.0, -1.0*radius);
         // call function to evaluate translation of tip-probe in general by spherical coordinates
-        tf::Vector3 t_tp = randomDirection(offset);
-        tf::Transform transform_tp = getTransformTipToProbe(t_tp, t_pt_0, offset);
-        transform_wp = transform_wt*transform_tp;
-        transform_target = transform_wp*transform_pe;
-        static tf::TransformBroadcaster br;
-        // while(1){
-        //     br.sendTransform(tf::StampedTransform(transform_wp, ros::Time::now(), "world", "target_probe"));
-        // }
-        target_pose.orientation.x = transform_target.getRotation().x();
-        target_pose.orientation.y = transform_target.getRotation().y();
-        target_pose.orientation.z = transform_target.getRotation().z();
-        target_pose.orientation.w = transform_target.getRotation().w();
-        target_pose.position.x = transform_target.getOrigin().x();
-        target_pose.position.y = transform_target.getOrigin().y();
-        target_pose.position.z = transform_target.getOrigin().z();
-        move_group.setPoseTarget(target_pose);
-        // use the planner
-        moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+        tf::Vector3 t_o1c = randomDirection(radius);
+        tf::Transform transform_o1c = getTransformObjToCamera(t_o1c, t_co1_0, radius);
+        transform_target1 = transform_wo1*transform_o1c*transform_ce;
+        transform2PoseMsg(transform_target1, target_pose1);
 
-        bool success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
-        ROS_INFO_NAMED("val_all_dir", "Visualizing plan (pose goal) %s", success ? "" : "FAILED");
-
-        // Visualizing plans
-        // We can also visualize the plan as a line with markers in RViz.
-        ROS_INFO_NAMED("val_all_dir", "Visualizing plan as trajectory line");
-        visual_tools.publishAxisLabeled(target_pose, "pose");
-        visual_tools.publishText(text_pose, "Pose Goal", rvt::WHITE, rvt::XLARGE);
+        // set target
+        move_group->setPoseTarget(target_pose1);
+        // plan 
+        success = (move_group->plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        ROS_INFO_NAMED("full_ultrasound_scan", "Visualizing plan1 (pose goal) %s", success ? "" : "FAILED");
+        // visualization
+        visual_tools.deleteAllMarkers();
         visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
         visual_tools.trigger();
-        bool confirm = true;
-        std::string input;
-        if (success){
-            //visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue");
-            std::cout << "Enter 'y' to confirm the plan; 'n' to try next target pose; 'q' to quit the program: " << std::endl;
-            std::cin >> input;
-            if (input=="y" || input=="Y") confirm = true;
-            else if (input=="n" || input=="N") confirm = false;
-            else return 0;
-        }
-        else{
-            std::cout << "Planning failed; Trying the next target pose ..." << std::endl;
-        }
-        if(confirm && success) {
-            move_group.move();
-            
-            world_ee << transform_target.getOrigin().x() << " " << transform_target.getOrigin().y()
-            << " " << transform_target.getOrigin().z() << " " << transform_target.getRotation().x()
-            << " " << transform_target.getRotation().y() << " " << transform_target.getRotation().z()
-            << " " << transform_target.getRotation().w() << "\n";
+        // move the robot
+        move_group->move();
+        ros::Duration(1.0).sleep();
 
-            world_probe << transform_wp.getOrigin().x() << " " << transform_wp.getOrigin().y()
-            << " " << transform_wp.getOrigin().z() << " " << transform_wp.getRotation().x()
-            << " " << transform_wp.getRotation().y() << " " << transform_wp.getRotation().z()
-            << " " << transform_wp.getRotation().w() << "\n";
-
-            input = "";
-            while(input!="c"){
-                std::cout << "Press 'c' to continue ... ";
-                std::cin >> input;
-            }
-            std::cout << "# points collected: " << i << std::endl;
-            move_group.setJointValueTarget(home_joints);
-            move_group.move();
-        }
-        else i-=1;
+        // ******** TODO *************
+        // capture images from ros topics
     }
-    world_ee.close();
-    world_probe.close();
+
+    count = 0;
+
+    while (node_handle.ok() && count<max_scan_per_layer){
+        // keep track on loop parameters
+        if (count++<max_scan_per_layer){
+            count = 0;
+            layer++;
+            radius = min_radius+layer*(max_radius-min_radius)/(num_layers-1);
+        }
+        // Evaluate unknown transforms
+        // set t0, which is the fixed translation of camera-obj, it's also the initial translation of obj-camera
+        tf::Vector3 t_co2_0(0.0, 0.0, -1.0*radius);
+        // call function to evaluate translation of tip-probe in general by spherical coordinates
+        tf::Vector3 t_o2c = randomDirection(radius);
+        tf::Transform transform_o2c = getTransformObjToCamera(t_o2c, t_co2_0, radius);
+        transform_target2 = transform_wo2*transform_o2c*transform_ce;
+        transform2PoseMsg(transform_target2, target_pose2);
+
+        // set target
+        move_group->setPoseTarget(target_pose2);
+        // plan 
+        success = (move_group->plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        ROS_INFO_NAMED("full_ultrasound_scan", "Visualizing plan1 (pose goal) %s", success ? "" : "FAILED");
+        // visualization
+        visual_tools.deleteAllMarkers();
+        visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
+        visual_tools.trigger();
+        // move the robot
+        move_group->move();
+        ros::Duration(1.0).sleep();
+
+        // ******** TODO *************
+        // capture images from ros topics
+    }
+
     return 0;
 }

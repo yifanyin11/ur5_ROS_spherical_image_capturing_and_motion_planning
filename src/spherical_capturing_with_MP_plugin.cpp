@@ -15,58 +15,124 @@
 #include "actionlib_msgs/GoalStatusArray.h"
 #include "actionlib_msgs/GoalStatus.h"
 
+#include <random>
+
+// Utils
+tf::Vector3 randomDirection(double radius){
+    std::random_device rd; // obtain a random number from hardware
+    std::mt19937 gen(rd()); // seed the generator
+    std::default_random_engine generator;
+
+    double MIN_THETA, MAX_THETA, MIN_PHI, MAX_PHI;
+
+    MIN_PHI=0.0, MAX_PHI=360.0;
+
+    std::uniform_real_distribution<double> distr_real1(MIN_PHI,MAX_PHI);
+    
+    // ******** TODO *************
+    // include angle limits to avoid collision
+    double phi = distr_real1(gen);
+    // std::cout << phi << std::endl;
+
+    MIN_THETA=0.0, MAX_THETA=60.0;
+
+    std::uniform_real_distribution<double> distr_real2(MIN_THETA,MAX_THETA);
+    double theta = distr_real2(gen);
+    std::cout << theta << std::endl;
+    std::cout << phi << std::endl;
+    phi = phi*M_PI/180.0;
+    theta = theta*M_PI/180.0;
+
+    tf::Vector3 dir(radius*cos(phi)*sin(theta), radius*sin(phi)*sin(theta), radius*cos(theta));
+    std::cout << "Length of dir " << dir.length() << std::endl;
+    return dir;
+}
+
+Eigen::Matrix3d skew3(tf::Vector3 x){
+    Eigen::Matrix3d x_hat;
+    x_hat << 0.0, -1.0*x.getZ(), x.getY(), x.getZ(), 0.0, -1.0*x.getX(), -1.0*x.getY(), x.getX(), 0.0;
+    return x_hat;
+}
+
+tf::Transform getTransformObjToCamera(tf::Vector3 t_oc, tf::Vector3 t_co_0, double radius){
+    // tf::Vector3 omega = t_oc.cross(t_pt_0);
+    tf::Vector3 omega = t_co_0.cross(-1.0*t_oc);
+    omega = omega.normalize();
+    // double theta = acos((double)t_oc.dot(-1.0*t_pt_0)/(radius*radius));
+    double theta = acos((double)t_co_0.dot(-1.0*t_oc)/(radius*radius));
+    Eigen::Matrix3d omega_hat = skew3(omega);
+    Eigen::Matrix3d R_oc_eigen = Eigen::Matrix3d::Identity() + sin(theta)*omega_hat+(1.0-cos(theta))*(omega_hat*omega_hat);
+    std::cout << "Determinant of R " << R_oc_eigen.determinant() << std::endl;
+    tf::Matrix3x3 R_oc(R_oc_eigen.coeff(0,0), R_oc_eigen.coeff(0,1), R_oc_eigen.coeff(0,2), 
+                    R_oc_eigen.coeff(1,0), R_oc_eigen.coeff(1,1), R_oc_eigen.coeff(1,2),
+                    R_oc_eigen.coeff(2,0), R_oc_eigen.coeff(2,1), R_oc_eigen.coeff(2,2));
+    tf::Transform transform_tp(R_oc, t_oc);
+    return transform_tp;
+}
+
+void transform2PoseMsg(tf::Transform& transform, geometry_msgs::Pose& pose){
+    pose.position.x = transform.getOrigin().x();
+    pose.position.y = transform.getOrigin().y();
+    pose.position.z = transform.getOrigin().z();
+
+    pose.orientation.x = transform.getRotation().x();
+    pose.orientation.y = transform.getRotation().y();
+    pose.orientation.z = transform.getRotation().z();
+    pose.orientation.w = transform.getRotation().w();
+}
+
+// Callbacks
 int MOVE_STATUS=0;
 
 void statusCallback(const actionlib_msgs::GoalStatusArray::ConstPtr& status)
 {
  if (!status->status_list.empty())
    {
-//     actionlib_msgs::GoalStatus goalStatus = status->status_list[0];
-     actionlib_msgs::GoalStatus goalStatus = status->status_list.back();
-     MOVE_STATUS = (int) goalStatus.status;
+    actionlib_msgs::GoalStatus goalStatus = status->status_list.back();
+    MOVE_STATUS = (int) goalStatus.status;
    }
 }
 
+// Main function
 int main(int argc, char** argv)
 {
     ros::init(argc, argv, "spherical_capturing_with_MP_plugin");
     ros::NodeHandle node_handle;
-    ros::Publisher command_pub = node_handle.advertise<std_msgs::Char>("demo3/gripper_request", 2000);
     ros::Publisher goalState_pub = node_handle.advertise<moveit_msgs::RobotState>("/rviz/moveit/update_custom_goal_state", 2000);
-
-//    ros::Subscriber move_status_sub = node_handle.subscribe("/move_group/status/", 1000, statusCallback);
 
     ros::Subscriber move_status_sub = node_handle.subscribe("/follow_joint_trajectory/status", 1000, statusCallback);
 
-//    ros::Subscriber move_status_sub = node_handle.subscribe("/execute_trajectory/status", 1000, statusCallback);
     static tf::TransformBroadcaster br;
     ros::AsyncSpinner spinner(1);
     spinner.start();
     ros::Rate rate(2000.0);
 
-    // Register block and box poses
+    double min_radius = 0.05, max_radius = 0.2;
+    int num_layers = 3;
+    int max_scan_per_layer = 3;
+
+    // Register object poses
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    tf::TransformListener listener_cube;
-    tf::TransformListener listener_box;
-    tf::TransformListener listener_gripper_ee;
-    tf::StampedTransform transform_wc;
-    tf::StampedTransform transform_wb;
-    tf::StampedTransform transform_ge;
+    tf::TransformListener listener;
+
+    tf::StampedTransform transform_wo1;
+    tf::StampedTransform transform_wo2;
+    tf::StampedTransform transform_ce;
     tf::Transform transform_target1;
     tf::Transform transform_target2;
-    tf::Transform transform_wc_final;
-    tf::Transform transform_wb_final;
+    tf::Transform transform_wo1_final;
+    tf::Transform transform_wo2_final;
 
     std_msgs::Char msg;
 
     std::clock_t c_start;
     std::clock_t c_end;
 
-    // lookup gripper_pick to ee_link
-    ROS_INFO("Lookup gripper_pick to ee_link ---");
+    // lookup camera_link to ee_link
+    ROS_INFO("Lookup camera_link to ee_link ---");
     while (node_handle.ok()){
         try{
-            listener_gripper_ee.lookupTransform("gripper_pick", "ee_link", ros::Time(0), transform_ge);
+            listener.lookupTransform("camera_link", "ee_link", ros::Time(0), transform_ce);
             break;
         }
         catch (tf::TransformException ex){
@@ -76,11 +142,11 @@ int main(int argc, char** argv)
         rate.sleep();
     }
 
-    // register cube to world transform
-    ROS_INFO("Waiting cube tranform to be registered ---");
+    // register object transforms
+    ROS_INFO("Waiting object1 tranform to be registered ---");
     while (node_handle.ok()){
         try{
-            listener_cube.lookupTransform("world", "cube", ros::Time(0), transform_wc);
+            listener.lookupTransform("world", "object1", ros::Time(0), transform_wo1);
             break;
         }
         catch (tf::TransformException ex){
@@ -89,13 +155,13 @@ int main(int argc, char** argv)
         }
         rate.sleep();
     }
-    ROS_INFO("Cube tranform found by main!");
+    ROS_INFO("Object1 tranform found by main!");
 
     // register box to world transform
-    ROS_INFO("Waiting box tranform to be registered ---");
+    ROS_INFO("Waiting object2 tranform to be registered ---");
     while (node_handle.ok()){
         try{
-            listener_box.lookupTransform("world", "box", ros::Time(0), transform_wb);
+            listener.lookupTransform("world", "object2", ros::Time(0), transform_wo2);
             break;
         }
         catch (tf::TransformException ex){
@@ -104,46 +170,10 @@ int main(int argc, char** argv)
         }
         rate.sleep();
     }
-    ROS_INFO("Box tranform found by main!");
-
-    // Calculate two target poses of ee_link
-    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    geometry_msgs::Pose target_pose1, target_pose2;
-    tf::Quaternion q_cube_gripper, q_box_gripper;
-    double offset_cube=0.0, offset_box=0.0;
-
-    // gripper orientation wrt marker frames
-    q_cube_gripper.setEuler(M_PI, 0, 0);
-    q_cube_gripper.normalize();
-    q_box_gripper.setRPY(M_PI, 0, 0);
-    q_box_gripper.normalize();
-    // gripper translation wrt marker frames (assume only offset along z)
-    tf::Vector3 t_cube_gripper(0, 0, offset_cube);
-    tf::Vector3 t_box_gripper(0, 0, offset_box);
-
-    tf::Transform transform_cg(q_cube_gripper, t_cube_gripper);
-    tf::Transform transform_bg(q_box_gripper, t_box_gripper);
-
-//    target_pose1.orientation.x = transform_target1.getRotation().x();
-//    target_pose1.orientation.y = transform_target1.getRotation().y();
-//    target_pose1.orientation.z = transform_target1.getRotation().z();
-//    target_pose1.orientation.w = transform_target1.getRotation().w();
-
-//    target_pose1.position.x = transform_target1.getOrigin().x();
-//    target_pose1.position.y = transform_target1.getOrigin().y();
-//    target_pose1.position.z = transform_target1.getOrigin().z();
-
-//    target_pose2.orientation.x = transform_target2.getRotation().x();
-//    target_pose2.orientation.y = transform_target2.getRotation().y();
-//    target_pose2.orientation.z = transform_target2.getRotation().z();
-//    target_pose2.orientation.w = transform_target2.getRotation().w();
-
-//    target_pose2.position.x = transform_target2.getOrigin().x();
-//    target_pose2.position.y = transform_target2.getOrigin().y();
-//    target_pose2.position.z = transform_target2.getOrigin().z()+0.2;
+    ROS_INFO("Object2 tranform found by main!");
 
     // Visualization
-    // ^^^^^^^^^^^^^^^^^
+    // ^^^^^^^^^^^^^
     namespace rvt = rviz_visual_tools;
     moveit_visual_tools::MoveItVisualTools visual_tools("world");
     visual_tools.deleteAllMarkers();
@@ -171,273 +201,175 @@ int main(int argc, char** argv)
     const robot_state::JointModelGroup* joint_model_group = robot_model->getJointModelGroup("manipulator");
     robot_state::RobotState goal_state = scene->getCurrentStateNonConst();   
     moveit_msgs::RobotState goal_msg;
-//    std::string input;
 
+    // Loop for scanning the first object
+    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    int count = 0, layer = 0;
+    double radius = min_radius;
+    geometry_msgs::Pose target_pose1, target_pose2;
 
-    tf::Transform transform_rotation;
-    tf::Quaternion q;
-    q.setEuler(0, 0, M_PI);
-    transform_rotation.setRotation(q);
-
-    robot_state::RobotState best_goal_state = scene->getCurrentStateNonConst();
-    bool flag = false;
-    std::vector<double> state_values(6);
-
-    transform_wc_final = transform_wc;
-
-    for (int i=0; i<4; ++i){
-        // rotate world_cube
-        transform_wc_final = transform_wc_final*transform_rotation;
-
-        transform_target1 = transform_wc_final*transform_cg*transform_ge;
-        // set translations
-        target_pose1.position.x = transform_target1.getOrigin().x();
-        target_pose1.position.y = transform_target1.getOrigin().y();
-        target_pose1.position.z = transform_target1.getOrigin().z();
-
-        target_pose1.orientation.x = transform_target1.getRotation().x();
-        target_pose1.orientation.y = transform_target1.getRotation().y();
-        target_pose1.orientation.z = transform_target1.getRotation().z();
-        target_pose1.orientation.w = transform_target1.getRotation().w();
-
-        goal_state.setFromIK(joint_model_group, target_pose1);
-        if (!flag){
-            best_goal_state = goal_state;
-            flag=true;
+    while (node_handle.ok() && layer<num_layers){
+        // keep track on loop parameters
+        if (count++<max_scan_per_layer){
+            count = 0;
+            layer++;
+            radius = min_radius+layer*(max_radius-min_radius)/(num_layers-1);
         }
-        else{
-            if (goal_state.distance(scene->getCurrentStateNonConst())<best_goal_state.distance(scene->getCurrentStateNonConst())){
-                //Good ik
+
+        // Evaluate unknown transforms
+        // set t0, which is the fixed translation of camera-obj, it's also the initial translation of obj-camera
+        tf::Vector3 t_co1_0(0.0, 0.0, -1.0*radius);
+        // call function to evaluate translation of tip-probe in general by spherical coordinates
+        tf::Vector3 t_o1c = randomDirection(radius);
+        tf::Transform transform_o1c = getTransformObjToCamera(t_o1c, t_co1_0, radius);
+
+        // find the best solution
+        tf::Transform transform_rotation;
+        tf::Quaternion q;
+        q.setEuler(0, 0, M_PI);
+        transform_rotation.setRotation(q);
+
+        robot_state::RobotState best_goal_state = scene->getCurrentStateNonConst();
+        bool flag = false;
+        std::vector<double> state_values(6);
+
+        transform_wo1_final = transform_wo1;
+
+        for (int i=0; i<4; ++i){
+            // rotate world_obj
+            transform_wo1_final = transform_wo1_final*transform_rotation;
+
+            transform_target1 = transform_wo1_final*transform_o1c*transform_ce;
+            // set translations
+            transform2PoseMsg(transform_target1, target_pose1);
+        
+            goal_state.setFromIK(joint_model_group, target_pose1);
+            if (!flag){
                 best_goal_state = goal_state;
+                flag=true;
+            }
+            else{
+                if (goal_state.distance(scene->getCurrentStateNonConst())<best_goal_state.distance(scene->getCurrentStateNonConst())){
+                    // Good ik
+                    best_goal_state = goal_state;
+                }
             }
         }
-    }
 
-    best_goal_state.printStateInfo(std::cout);
-    moveit::core::robotStateToRobotStateMsg(best_goal_state, goal_msg);
-    // publish goal state msg
-    goalState_pub.publish(goal_msg);
+        best_goal_state.printStateInfo(std::cout);
+        moveit::core::robotStateToRobotStateMsg(best_goal_state, goal_msg);
+        // publish goal state msg
+        goalState_pub.publish(goal_msg);
 
+        ros::Duration(1.0).sleep();
 
-//    bool confirm = false;
-    // plan for the first target
-//    while (!confirm){
-//        goal_state.setToDefaultValues();
-//        goal_state.setFromIK(joint_model_group, target_pose1);
-//        goal_state.printStateInfo(std::cout);
-//        moveit::core::robotStateToRobotStateMsg(goal_state, goal_msg);
-//        // publish goal state msg
-//        goalState_pub.publish(goal_msg);
-
-//        std::cout << "Enter 'y' to confirm the IK solution pose; 'n' to try a new solve; 'q' to quit the program: " << std::endl;
-//        std::cin >> input;
-//        if (input=="y" || input=="Y") confirm = true;
-//        else if (input=="n" || input=="N") confirm = false;
-//        else return 0;
-//    }
-
-//    while(node_handle.ok()){
-//        goalState_pub.publish(goal_msg);
-//        if (MOVE_STATUS!=0){
-//            break;
-//        }
-//        rate.sleep();
-//    }
-    ros::Duration(1.0).sleep();
-
-    while(node_handle.ok()){
-        if (!(MOVE_STATUS==3 || MOVE_STATUS==4)){
-            break;
+        while(node_handle.ok()){
+            if (!(MOVE_STATUS==3 || MOVE_STATUS==4)){
+                break;
+            }
+            rate.sleep();
         }
-        rate.sleep();
-    }
 
-    // waiting execution to be finished
-    while(node_handle.ok()){
-        if (MOVE_STATUS==3 || MOVE_STATUS==4){
-            break;
+        // waiting execution to be finished
+        while(node_handle.ok()){
+            if (MOVE_STATUS==3 || MOVE_STATUS==4){
+                break;
+            }
+            rate.sleep();
         }
-        rate.sleep();
-    }
 
-    ROS_INFO("MOVEIT execution completed!");
+        ROS_INFO("MOVEIT execution completed!");
 
-//     // Use move_group
-//     //***************
-
-//     static const std::string PLANNING_GROUP = "manipulator";
-//     // the name of the planning group you would like to control and plan for.
-//     moveit::planning_interface::MoveGroupInterface move_group(PLANNING_GROUP);
-//     moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-//     // Raw pointers used to refer to the planning group
-//     const robot_state::JointModelGroup* joint_model_group =
-//         move_group.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
-
-//     // Scale movement speed
-//     move_group.setMaxVelocityScalingFactor(0.05);
-
-//     // Getting Basic Information
-//     // std::copy(move_group.getJointModelGroupNames().begin(), move_group.getJointModelGroupNames().end(),
-//     //             std::ostream_iterator<std::string>(std::cout, ", "));
-
-//     // Start Planning
-//     // ^^^^^^^^^^^^^^^^^
-//     // visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to start the demo");
-//     // plan a motion for this group to a desired pose for the end-effector
-
-//     // plan for the first target
-//     // call the custom planner to compute the plan and visualize it
-//     bool success, confirm;
-
-//     do{
-//         move_group.setPoseTarget(target_pose1);
-//         // use students' planner
-//         // TODO *******************************
-//         moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-//         // ************************************
-
-//         success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
-//         ROS_INFO_NAMED("pick_and_place", "Visualizing plan 1 (pose goal) %s", success ? "" : "FAILED");
-
-//         // Visualizing plans
-//         // We can also visualize the plan as a line with markers in RViz.
-//         ROS_INFO_NAMED("pick_and_place", "Visualizing plan 1 as trajectory line");
-//         visual_tools.publishAxisLabeled(target_pose1, "pose1");
-//         visual_tools.publishText(text_pose, "Pose Goal", rvt::WHITE, rvt::XLARGE);
-//         visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
-//         visual_tools.trigger();
-// //        visual_tools.publishTrajectoryPath(my_plan.trajectory_, my_plan.start_state_);
-// //        visual_tools.trigger();
-//         confirm = true;
-//         std::string input;
-//         if (success){
-//             //visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue");
-//             std::cout << "Enter 'y' to confirm the plan; 'n' to redo the planning: " << std::endl;
-//             std::cin >> input;
-//             if (input=="y" || input=="Y") confirm = true;
-//             else confirm = false;
-//         }
-//         else{
-//             ROS_INFO("Planning failed; Redoing the planning ...");
-//         }
-//     }
-//     while(!(confirm && success));
-//     // move the robot
-//     move_group.move();
-
-    ros::Duration(1.0).sleep();
+        ros::Duration(1.0).sleep();
 
 //    while(node_handle.ok()){
 //            br.sendTransform(tf::StampedTransform(transform_target1, ros::Time::now(), "world", "idle"));
 //            rate.sleep();
 //    }
+        // ******** TODO *************
+        // capture images from ros topic
 
-    // // plan for the second target
-    scene->getCurrentStateNonConst().update();
-    robot_model = scene->getRobotModel();
-    joint_model_group = robot_model->getJointModelGroup("manipulator");
-    goal_state = scene->getCurrentStateNonConst();
+        scene->getCurrentStateNonConst().update();
+        robot_model = scene->getRobotModel();
+        joint_model_group = robot_model->getJointModelGroup("manipulator");
+        goal_state = scene->getCurrentStateNonConst();
 
-    transform_wb_final = transform_wb;
+    }
 
-    for (int i=0; i<4; ++i){
-        transform_wb_final = transform_wb_final*transform_rotation;
+    // plan for the second target
 
-        transform_target2 = transform_wb_final*transform_bg*transform_ge;
+    count = 0;
 
-        target_pose2.position.x = transform_target2.getOrigin().x();
-        target_pose2.position.y = transform_target2.getOrigin().y();
-        target_pose2.position.z = transform_target2.getOrigin().z()+0.2;
-
-        target_pose2.orientation.x = transform_target2.getRotation().x();
-        target_pose2.orientation.y = transform_target2.getRotation().y();
-        target_pose2.orientation.z = transform_target2.getRotation().z();
-        target_pose2.orientation.w = transform_target2.getRotation().w();
-
-        goal_state.setFromIK(joint_model_group, target_pose2);
-        if (!flag){
-            best_goal_state = goal_state;
-            flag=true;
+    while (node_handle.ok() && count<max_scan_per_layer){
+        // keep track on loop parameters
+        if (count++<max_scan_per_layer){
+            count = 0;
+            layer++;
+            radius = min_radius+layer*(max_radius-min_radius)/(num_layers-1);
         }
-        else{
-            if (goal_state.distance(scene->getCurrentStateNonConst())<best_goal_state.distance(scene->getCurrentStateNonConst())){
-                //Good ik
+        // Evaluate unknown transforms
+        // set t0, which is the fixed translation of camera-obj, it's also the initial translation of obj-camera
+        tf::Vector3 t_co2_0(0.0, 0.0, -1.0*radius);
+        // call function to evaluate translation of tip-probe in general by spherical coordinates
+        tf::Vector3 t_o2c = randomDirection(radius);
+        tf::Transform transform_o2c = getTransformObjToCamera(t_o2c, t_co2_0, radius);
+
+        // find the best solution
+        tf::Transform transform_rotation;
+        tf::Quaternion q;
+        q.setEuler(0, 0, M_PI);
+        transform_rotation.setRotation(q);
+
+        robot_state::RobotState best_goal_state = scene->getCurrentStateNonConst();
+        bool flag = false;
+        std::vector<double> state_values(6);
+        transform_wo2_final = transform_wo2;
+
+        for (int i=0; i<4; ++i){
+            transform_wo2_final = transform_wo2_final*transform_rotation;
+
+            transform_target2 = transform_wo2_final*transform_o2c*transform_ce;
+
+            transform2PoseMsg(transform_target2, target_pose2);
+
+            goal_state.setFromIK(joint_model_group, target_pose2);
+            if (!flag){
                 best_goal_state = goal_state;
+                flag=true;
+            }
+            else{
+                if (goal_state.distance(scene->getCurrentStateNonConst())<best_goal_state.distance(scene->getCurrentStateNonConst())){
+                    //Good ik
+                    best_goal_state = goal_state;
+                }
             }
         }
-    }
 
-    goal_state.printStateInfo(std::cout);
-    moveit::core::robotStateToRobotStateMsg(goal_state, goal_msg);
+        goal_state.printStateInfo(std::cout);
+        moveit::core::robotStateToRobotStateMsg(goal_state, goal_msg);
 
-    goalState_pub.publish(goal_msg);
+        goalState_pub.publish(goal_msg);
 
-    ros::Duration(1.0).sleep();
+        ros::Duration(1.0).sleep();
 
-    // waiting execution to be finished
-    while(node_handle.ok()){
-        if (!(MOVE_STATUS==3 || MOVE_STATUS==4)){
-            break;
+        // waiting execution to be finished
+        while(node_handle.ok()){
+            if (!(MOVE_STATUS==3 || MOVE_STATUS==4)){
+                break;
+            }
+            rate.sleep();
         }
-        rate.sleep();
-    }
 
-    while(node_handle.ok()){
-        if (MOVE_STATUS==3 || MOVE_STATUS==4){
-            break;
+        while(node_handle.ok()){
+            if (MOVE_STATUS==3 || MOVE_STATUS==4){
+                break;
+            }
+            rate.sleep();
         }
-        rate.sleep();
+
+        ROS_INFO("MOVEIT execution completed!");
+
+        ros::Duration(1.0).sleep();
     }
-
-
-    ROS_INFO("MOVEIT execution completed!");
-
-    ros::Duration(1.0).sleep();
-
-    // do{
-    //     move_group.setPoseTarget(target_pose2);
-    //     // use students' planner
-    //     // TODO *******************************
-    //     moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-    //     // ************************************
-
-    //     success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
-    //     ROS_INFO_NAMED("pick_and_place", "Visualizing plan 2 (pose goal) %s", success ? "" : "FAILED");
-
-    //     // Visualizing plans
-    //     // We can also visualize the plan as a line with markers in RViz.
-    //     ROS_INFO_NAMED("pick_and_place", "Visualizing plan 2 as trajectory line");
-    //     visual_tools.publishAxisLabeled(target_pose2, "pose2");
-    //     visual_tools.publishText(text_pose, "Pose Goal", rvt::WHITE, rvt::XLARGE);
-    //     visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
-    //     visual_tools.trigger();
-    //     visual_tools.publishTrajectoryPath(my_plan.trajectory_, my_plan.start_state_);
-    //     visual_tools.trigger();
-    //     confirm = true;
-    //     // ask for students' confirmation
-    //     std::string input;
-    //     if (success){
-    //         //visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue");
-    //         std::cout << "Enter 'y' to confirm the plan; 'n' to redo the planning: " << std::endl;
-    //         std::cin >> input;
-    //         if (input=="y" || input=="Y") confirm = true;
-    //         else confirm = false;
-    //     }
-    //     else{
-    //         ROS_INFO("Planning failed; Redoing the planning ...");
-    //     }
-    // } while(!(confirm && success));
-    // //move the robot
-    // move_group.move();
-
-    // // waiting execution to be finished
-    // while(ros::ok()){
-    //     if (MOVE_STATUS==3){
-    //         break;
-    //     }
-    // }
-
-
+    
 }
