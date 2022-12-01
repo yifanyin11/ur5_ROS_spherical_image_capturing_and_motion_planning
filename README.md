@@ -8,8 +8,6 @@ Any applications in which images of (an) object(s) from different angle of views
 1. Image collections for neural network training in classification, detection or segmentation applications
 2. Experimental visual validations from all angle of views
 
-Also, this workspace provides software setups for testing implementations of custom motion planning algorithms.
-
 ## Description
 
 An in-depth paragraph about your project and overview of use.
