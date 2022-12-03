@@ -27,26 +27,22 @@ int main(int argc, char** argv){
     move_group.setMaxVelocityScalingFactor(0.03);
     move_group.setMaxAccelerationScalingFactor(0.1);
 
-    // moveit setups for visualization
-    namespace rvt = rviz_visual_tools;
-    moveit_visual_tools::MoveItVisualTools visual_tools("world");
-
-    // vector to store home position
+    moveit::core::RobotStatePtr current_state =  move_group.getCurrentState();
     std::vector<double> joint_group_positions;
-    
-    // read home position from the configuration file
-    std::ifstream config("/home/yyin34/catkin_cb2/src/motion_planning/config/home_pos.txt");
-    std::string value_str;
+    const std::vector<std::string> joint_names = joint_model_group->getActiveJointModelNames();
+    current_state->copyJointGroupPositions(joint_model_group, joint_group_positions);
 
-    if (config.is_open())
-    {   
-        while(std::getline(config, value_str)){
-            joint_group_positions.push_back(std::stod(value_str));
-            // std::cout << std::stod(value_str) << std::endl;
+    // get ros params
+    for (int i=0;i<joint_group_positions.size();++i){
+        std::string name = "/home_position/"+joint_names[i];
+        if (nh.getParam(name, joint_group_positions[i])){
+            ROS_INFO("Got param: %s", name.c_str());
+            std::cout << joint_group_positions[i] << std::endl;
         }
-        config.close();
+        else{
+            ROS_ERROR("No parameter named %s!", name.c_str());
+        }
     }
-    else std::cout << "Unable to open file";
 
     // set joint space goal
     move_group.setJointValueTarget(joint_group_positions);
@@ -55,16 +51,8 @@ int main(int argc, char** argv){
     bool success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
     ROS_INFO_NAMED("robot_homing", "Visualizing plan (pose goal) %s", success ? "" : "FAILED");
 
-    // visualization
-    visual_tools.deleteAllMarkers();
-    visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
-    visual_tools.trigger();
-    bool confirm = false;
-    std::string input;
-
     //move the robot
     move_group.move();
-
 
     ros::shutdown();
     return 0;

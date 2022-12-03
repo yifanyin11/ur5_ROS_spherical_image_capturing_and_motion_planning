@@ -69,4 +69,5 @@
 	args="-d $(find vision_guided_planning)/vision_guided_planning.rviz">
   </node>
 
+  <rosparam command="load" file="$(find vision_guided_planning)/config/config.yaml" />
 </launch>

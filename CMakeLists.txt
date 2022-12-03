@@ -156,6 +156,12 @@ target_link_libraries(spherical_capturing ${catkin_LIBRARIES})
 add_executable(spherical_capturing_with_MP_plugin src/spherical_capturing_with_MP_plugin.cpp)
 target_link_libraries(spherical_capturing_with_MP_plugin ${catkin_LIBRARIES})
 
+add_executable(set_home_position src/set_home_position.cpp)
+target_link_libraries(set_home_position ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
+
+add_executable(robot_homing src/robot_homing.cpp)
+target_link_libraries(robot_homing ${catkin_LIBRARIES} ${Boost_LIBRARIES} yaml-cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
