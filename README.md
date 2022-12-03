@@ -8,10 +8,6 @@ Any applications in which images of (an) object(s) from different angle of views
 1. Image collections for neural network training in classification, detection or segmentation applications
 2. Experimental visual validations from all angle of views
 
-## Description
-
-An in-depth paragraph about your project and overview of use.
-
 ## Getting Started
 
 ### Dependencies
@@ -53,6 +49,10 @@ source devel/setup.bash
 ```
 code blocks for commands
 ```
+
+## Methods
+
+An in-depth paragraph about your project and overview of use.
 
 ## Authors
 
