@@ -24,7 +24,7 @@ A Catkin workspace is required for the build of this package.
 cd $HOME/catkin_ws/src
 
 # retrieve the sources
-git clone 
+git clone https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning.git spherical_image_capturing/
 
 # install dependencies from sources
 git clone -b kinetic-devel https://github.com/ros-industrial/robotiq.git 
