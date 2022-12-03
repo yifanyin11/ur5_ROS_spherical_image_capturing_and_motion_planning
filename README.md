@@ -19,9 +19,32 @@ An in-depth paragraph about your project and overview of use.
 The package runs on Ubuntu 18.04 and ROS Melodic.
 
 ### Installing
+A Catkin workspace is required for the build of this package.
+```
+# install dependencies from sources
+git clone -b kinetic-devel https://github.com/ros-industrial/robotiq.git 
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+git clone -b melodic-devel https://github.com/ros-industrial/universal_robot.git 
+
+git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git 
+
+git clone -b old/indigo-devel https://github.com/IntelRealSense/realsense-ros.git
+
+git clone -b melodic-devel https://github.com/pal-robotics/aruco_ros.git 
+
+git clone -b v1.12.4 https://github.com/IntelRealSense/librealsense.git
+
+# checking other dependencies
+cd ..
+rosdep update
+rosdep install --from-paths src --ignore-src -y
+
+# building
+catkin build
+
+# activate this workspace
+source devel/setup.bash
+```
 
 ### Executing program
 
