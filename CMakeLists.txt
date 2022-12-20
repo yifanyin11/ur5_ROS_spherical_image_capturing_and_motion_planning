@@ -4,6 +4,8 @@ project(vision_guided_planning)
 ## Add support for C++11, supported in ROS Kinetic and newer
 # add_definitions(-std=c++11)
 
+find_package(OpenCV REQUIRED)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -13,8 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_ros_planning
   moveit_ros_planning_interface
   ur_robot_driver
+  std_msgs
   geometry_msgs
   roscpp
+  roslib
+  message_generation
   sensor_msgs
   tf2_ros
   tf2_eigen
@@ -62,12 +67,17 @@ find_package(catkin REQUIRED COMPONENTS
 #   Message2.msg
 # )
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+# Generate services in the 'srv' folder
+add_service_files(
+  FILES
+  image_capture.srv
+)
+
+generate_messages(
+  DEPENDENCIES
+  sensor_msgs 
+  std_msgs
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -114,7 +124,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES vision_guided_planning
-#  CATKIN_DEPENDS ur_bringup ur_driver
+ CATKIN_DEPENDS roscpp std_msgs sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -127,6 +137,7 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -150,8 +161,13 @@ target_link_libraries(object1_transform_publisher ${catkin_LIBRARIES})
 add_executable(object2_transform_publisher src/object2_transform_publisher.cpp)
 target_link_libraries(object2_transform_publisher ${catkin_LIBRARIES})
 
+add_executable(image_writer_server src/image_writer_server.cpp)
+add_dependencies(image_writer_server ${vision_guided_planning_EXPORTED_TARGETS})
+target_link_libraries(image_writer_server ${catkin_LIBRARIES} ${OpenCV_INCLUDE_DIRS})
+
 add_executable(spherical_capturing src/spherical_capturing.cpp)
-target_link_libraries(spherical_capturing ${catkin_LIBRARIES})
+add_dependencies(spherical_capturing ${vision_guided_planning_EXPORTED_TARGETS})
+target_link_libraries(spherical_capturing ${catkin_LIBRARIES} ${OpenCV_INCLUDE_DIRS})
 
 add_executable(spherical_capturing_with_MP_plugin src/spherical_capturing_with_MP_plugin.cpp)
 target_link_libraries(spherical_capturing_with_MP_plugin ${catkin_LIBRARIES})
