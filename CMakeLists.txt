@@ -20,11 +20,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslib
   message_generation
+  cv_bridge
   sensor_msgs
   tf2_ros
   tf2_eigen
   tf2_geometry_msgs
   ur_description
+  image_transport
 )
 
 ## System dependencies are found with CMake's conventions
@@ -124,7 +126,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES vision_guided_planning
- CATKIN_DEPENDS roscpp std_msgs sensor_msgs
+ CATKIN_DEPENDS roscpp std_msgs sensor_msgs image_transport cv_bridge
 #  DEPENDS system_lib
 )
 

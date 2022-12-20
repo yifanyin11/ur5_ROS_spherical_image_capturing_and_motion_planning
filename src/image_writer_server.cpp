@@ -1,15 +1,16 @@
 #include <string>
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
-#include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <vision_guided_planning/image_capture.h>
 #include <sstream>
 
 class ImageServer{
 private:
-    cv:Mat image;
+    cv_bridge::CvImagePtr img_ptr;
     ros::NodeHandle nh;
     ros::Subscriber img_sub;
 
@@ -21,16 +22,16 @@ public:
 
     void imageCallback(const sensor_msgs::ImageConstPtr& msg){
         try{
-            image = cv_bridge::toCvShare(msg, "bgr8")->image.clone();
+            img_ptr = cv_bridge::toCvCopy(msg, "bgr8");
         }
         catch (cv_bridge::Exception& e){
             ROS_ERROR("Could not convert from '%s' to 'bgr8'.\n", msg->encoding.c_str());
         }
     }
-    void saveImage(vision_guided_planning::image_capture::Request &req, vision_guided_planning::image_capture::Response &res){
-        std::string img_full_path = req.path+req.img_name;
-        if(!image.empty()){
-            if (!cv::imwrite(img_full_path, image)){
+    bool saveImage(vision_guided_planning::image_capture::Request &req, vision_guided_planning::image_capture::Response &res){
+        std::string img_full_path = req.path+req.image_name;
+        if(!(img_ptr->image.empty())){
+            if (!cv::imwrite(img_full_path, img_ptr->image)){
                 res.status = 0;
                 std::cout << "Image cannot be saved as '" << img_full_path << "'." << std::endl;
             }
@@ -52,7 +53,7 @@ int main(int argc, char** argv){
     ros::init(argc, argv, "image_writer_server");
     ros::NodeHandle nh;
     ImageServer imgSrvr(nh, topic);
-    ros::ServiceServer service = nh.adverseService("image_capture", &ImageServer::saveImage, &imgSrvr);
+    ros::ServiceServer service = nh.advertiseService("image_capture", &ImageServer::saveImage, &imgSrvr);
     ros::spin();    
 }
 

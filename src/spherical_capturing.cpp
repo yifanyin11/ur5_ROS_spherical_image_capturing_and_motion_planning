@@ -83,7 +83,7 @@ bool captureImage(ros::NodeHandle& nh, std::string& img_path, std::string& img_n
     ros::ServiceClient client = nh.serviceClient<vision_guided_planning::image_capture>("image_capture");
     vision_guided_planning::image_capture srv;
     srv.request.path = img_path;
-    srv.request.img_name = img_name;
+    srv.request.image_name = img_name;
 
     if(client.call(srv)){
         if (srv.response.status==1){
