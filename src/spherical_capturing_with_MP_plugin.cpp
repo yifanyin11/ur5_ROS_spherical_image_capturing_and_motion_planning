@@ -15,6 +15,7 @@
 #include "actionlib_msgs/GoalStatusArray.h"
 #include "actionlib_msgs/GoalStatus.h"
 
+#include <vision_guided_planning/image_capture.h>
 #include <random>
 
 // Utils
@@ -91,6 +92,27 @@ void statusCallback(const actionlib_msgs::GoalStatusArray::ConstPtr& status)
     actionlib_msgs::GoalStatus goalStatus = status->status_list.back();
     MOVE_STATUS = (int) goalStatus.status;
    }
+}
+
+bool captureImage(ros::NodeHandle& nh, std::string& img_path, std::string& img_name){
+    ros::ServiceClient client = nh.serviceClient<vision_guided_planning::image_capture>("image_capture");
+    vision_guided_planning::image_capture srv;
+    srv.request.path = img_path;
+    srv.request.image_name = img_name;
+
+    if(client.call(srv)){
+        if (srv.response.status==1){
+            ROS_INFO("Image saved.");
+        }
+        else{
+            ROS_INFO("Save failed!");
+        }
+    }
+    else{
+        ROS_ERROR("Fail to call service image_capture!");
+        return false;
+    }
+    return true;
 }
 
 // Main function
@@ -204,9 +226,11 @@ int main(int argc, char** argv)
 
     // Loop for scanning the first object
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    int count = 0, layer = 0;
+    int count = 0, layer = 0, img_count=0;
     double radius = min_radius;
     geometry_msgs::Pose target_pose1, target_pose2;
+    std::string img_path = "./";
+    std::string img_name;
 
     while (node_handle.ok() && layer<num_layers){
         // keep track on loop parameters
@@ -286,8 +310,10 @@ int main(int argc, char** argv)
 //            br.sendTransform(tf::StampedTransform(transform_target1, ros::Time::now(), "world", "idle"));
 //            rate.sleep();
 //    }
-        // ******** TODO *************
-        // capture images from ros topic
+
+        img_name = "obj1_"+std::to_string(img_count)+".png";
+        if (!captureImage(node_handle, img_path, img_name)) continue;
+        img_count++;
 
         scene->getCurrentStateNonConst().update();
         robot_model = scene->getRobotModel();
@@ -299,6 +325,7 @@ int main(int argc, char** argv)
     // plan for the second target
 
     count = 0;
+    img_count = 0;
 
     while (node_handle.ok() && count<max_scan_per_layer){
         // keep track on loop parameters
@@ -370,6 +397,15 @@ int main(int argc, char** argv)
         ROS_INFO("MOVEIT execution completed!");
 
         ros::Duration(1.0).sleep();
+
+        img_name = "obj2_"+std::to_string(img_count)+".png";
+        if (!captureImage(node_handle, img_path, img_name)) continue;
+        img_count++;
+
+        scene->getCurrentStateNonConst().update();
+        robot_model = scene->getRobotModel();
+        joint_model_group = robot_model->getJointModelGroup("manipulator");
+        goal_state = scene->getCurrentStateNonConst();
     }
     
 }

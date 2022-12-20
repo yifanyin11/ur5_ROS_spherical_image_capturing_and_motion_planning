@@ -235,8 +235,6 @@ int main(int argc, char** argv)
         move_group.move();
         ros::Duration(1.0).sleep();
 
-        // ******** TODO *************
-        // capture images from ros topics
         img_name = "obj1_"+std::to_string(img_count)+".png";
         if (!captureImage(node_handle, img_path, img_name)) continue;
         img_count++;
@@ -274,8 +272,6 @@ int main(int argc, char** argv)
         move_group.move();
         ros::Duration(1.0).sleep();
 
-        // ******** TODO *************
-        // capture images from ros topics
         img_name = "obj2_"+std::to_string(img_count)+".png";
         if (!captureImage(node_handle, img_path, img_name)) continue;
         img_count++;
