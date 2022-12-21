@@ -87,7 +87,7 @@ where
 In the object frame, the camera is on the sphere that centered at its origin. Thus, the origin of the camera frame in the view of the object, denoted as $\vec{p_r}$, can be determined in terms of the variables in spherical coordinate system as
 
 <p align="center">
-  $\vec{p}_r=\vec{f}(||\vec{p_0}||, \theta, \phi)$
+  $\vec{p}_r=\vec{f}(||\vec{p_0}||, \theta, \varphi)=[||\vec{p_0}||sin \theta cos \varphi, ||\vec{p_0}||sin \theta sin \varphi, ||\vec{p_0}||cos \theta]^T$
 </p>
 
 ## Authors
