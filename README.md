@@ -61,8 +61,3 @@ Contributors names and contact info
 Yifan Yin
 
 Email: [yyin34@jhu.edu](yyin34@jhu.edu)
-
-## Acknowledgments
-
-Inspiration, code snippets, etc.
-* []()
