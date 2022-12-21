@@ -54,7 +54,7 @@ code blocks for commands
 
 The core of this package is the way of determining rigid body transformations of the camera link in the frame of the object. 
 
-![alt text](https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method1.png =100x20)
+<img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method1.png" width="200" height="200" />
 
 ## Authors
 
