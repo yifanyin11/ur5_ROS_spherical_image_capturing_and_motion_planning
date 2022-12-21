@@ -60,12 +60,17 @@ The core of spherical image capturing is the way of determining rigid body trans
 
 As shown in the figure, the origin of the object frame is at the center of an imaginary sphere. Our goal is to calculate the transformation $E_{OC}$, such that the camera is moving on the sphere, and facing towards the object at all time.
 
+### Assumptions
+
 In order to interpreate this goal, we make the following assumptions:
 * In the camera frame, an initial pose has been given so that the camera is facing towards the object. The translation component of that initial pose, in the view of the camera frame, is $p_0$.
-* When performing the spherical scanning, the translation component of the rigid body transformation $E_{CO}$ is always equal to its initial value, only the rotation changes. That is $E_{CO}=g(R, \vec{p_0})$. 
+* When performing the spherical scanning, the translation component of the rigid body transformation $E_{CO}$ is always equal to its initial value, only the rotation changes. That is 
+<p align="center">
+  $E_{CO}=g(R, \vec{p_0})$. 
+</p>
+### Spherical coordinate system
 
-1. Spherical coordinate system
-
+From the assumptions, we can write the expression for the transformation $E_{OC}$
 
 ## Authors
 
