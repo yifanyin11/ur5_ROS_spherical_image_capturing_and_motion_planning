@@ -75,7 +75,19 @@ In order to interpreate this goal, we make the following assumptions:
 From the assumptions, we can write the expression for the transformation $E_{OC}$ as
 
 <p align="center">
-  $E_{o c}=g^{-1}\left(R, \vec{p}_0\right)=g\left(R^{T},-R^{T} \vec{p}_0\right)$
+  $E_{OC}=g^{-1}\left(R, \vec{p}_0\right)=g\left(R^{T},-R^{T} \vec{p}_0\right)$
+</p>
+
+where
+
+<p align="center">
+  $\vec{p_r}=-R^{T}\vec{p_0}$
+</p>
+
+In the object frame, the camera is on the sphere that centered at its origin. Thus, the origin of the camera frame in the view of the object, denoted as $\vec{p_r}$, can be determined in terms of the variables in spherical coordinate system as
+
+<p align="center">
+  $\begin{aligned} \vec{p}_r & =\vec{f}\left(\left\|\vec{p}_0\right\|, \theta, \varphi\right) \\ & =\left[\left\|\vec{p}_0\right\| \sin \theta \cos \varphi\left\|\vec{p}_0\right\| \sin \theta \sin \varphi\left\|\vec{p}_0\right\| \cos \theta\right]^{T}\end{aligned}$
 </p>
 
 ## Authors
