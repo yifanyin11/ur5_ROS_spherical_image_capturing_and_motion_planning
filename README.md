@@ -55,7 +55,7 @@ code blocks for commands
 The core of spherical image capturing is the way of determining rigid body transformations of the camera link with respect to the object. 
 
 <p align="center">
-  <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method1.png" width="475" height="400" />
+  <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method1.png" width="375" height="300" />
 </p>
 
 As shown in the figure, the origin of the object frame is at the center of an imaginary sphere. Our goal is to calculate the transformation $E_{OC}$, such that the camera is moving on the sphere, and facing towards the object at all time.
