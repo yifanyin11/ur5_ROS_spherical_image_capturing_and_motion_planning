@@ -43,8 +43,16 @@ source devel/setup.bash
 ```
 
 ### Executing program
+* Launch the environment
+To activate the software setups, run
 
-* Register two objects to ros tf tranform tree using Aruco markers
+```
+roslaunch vision_guided_planning vision_guided_planning.launch
+```
+It will start the robot driver, rviz, camera driver and activate all other necessary settings.
+
+
+* Register two objects to tf tranform tree using Aruco markers
 
 To register object1, move the end effector around, so that the marker can be viewed in the camera mounted. Open a new terminal, run
 ```
@@ -52,9 +60,20 @@ roslaunch vision_guided_planning register_object1.launch
 ```
 A message will show up once if the transformation has been sent.
 
-Repeat the same procedure for object2
+Repeat the same procedure for object2, run
 ```
 roslaunch vision_guided_planning register_object2.launch
+```
+
+* Perform spherical image capturing
+To start the automatic version of image capturing, run
+```
+roslaunch vision_guided_planning spherical_capturing.launch
+```
+It will capture images for both objects registered, as if the camera is moving on a sphere and towards the object at all time.
+If rviz motion planning plugin is preferred, run
+```
+roslaunch vision_guided_planning spherical_capturing_rviz.launch
 ```
 
 ## Methods
