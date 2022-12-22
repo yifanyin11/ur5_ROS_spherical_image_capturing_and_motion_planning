@@ -90,6 +90,17 @@ In the object frame, the camera is on the sphere that centered at its origin. Th
   $\vec{p}_r=\vec{f}(||\vec{p_0}||, \ \theta, \  \varphi)=[\ ||\vec{p_0}||\sin \theta \cos \varphi \quad ||\vec{p_0}||\sin \theta \sin \varphi \quad ||\vec{p_0}||\cos \theta\ ]^T$
 </p>
 
+with $0 \leqslant \theta \leqslant \pi$ and $0 \leqslant \varphi \leqslant 2 \pi$.
+
+### Active transformation 
+
+Use exponential coordinates of $SO(3)$, set
+
+<p align="center">
+  $e^{\hat{\omega}\theta}=R^T$
+</p>
+
+
 
 ## Authors
 
