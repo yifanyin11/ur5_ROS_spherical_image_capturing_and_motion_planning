@@ -44,6 +44,7 @@ source devel/setup.bash
 
 ### Executing program
 * Launch the environment
+
 To activate the software setups, run
 
 ```
@@ -66,6 +67,7 @@ roslaunch vision_guided_planning register_object2.launch
 ```
 
 * Perform spherical image capturing
+
 To start the automatic version of image capturing, run
 ```
 roslaunch vision_guided_planning spherical_capturing.launch
