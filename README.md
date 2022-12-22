@@ -138,7 +138,7 @@ Thus, one solution will be
 
 ### Eigen vectors
 
-Now, discuss other solutions. For a rotation $R_{oc}$, if the frame associated with it rotates about $\vec{p_0}$ by an angle of $\varphi$, the resulting orientation will be $R_{oc} \ e^{\hat{p_0}\varphi}$. Notice that $\vec{p_0}$ is an eigen vector of $e^{\hat{p_0} \ \varphi}$ with an eigen value $\lambda =1$. Thus,
+Now, discuss other solutions. For a rotation $R_{oc}$, if the frame associated with it rotates about $\vec{p_0}$ by an angle of $\varphi$, the resulting orientation will be $R_{oc} \ e^{\hat{p_0}\varphi}$. Notice that $\vec{p_0}$ is an eigen vector of $e^{\hat{p_0} \varphi}$ with an eigen value $\lambda =1$. Thus,
 
 <p align="center">
   $R_{oc} \ e^{\hat{p_0}\varphi} \ \vec{p_0} = R_{oc} \ \vec{p_0} = -\vec{p_r}$.
