@@ -75,7 +75,7 @@ In order to interpreate this goal, we make the following assumptions:
 From the assumptions, we can write the expression for the transformation $E_{OC}$ as
 
 <p align="center">
-  $E_{OC}=g^{-1}\left(R, \vec{p}_0\right)=g\left(R^{T},-R^{T} \vec{p}_0\right)$
+  $E_{OC}=g^{-1}\left(R, \vec{p}_0\right)=g\left(R^{T},\vec{p_r}\right)$
 </p>
 
 where
