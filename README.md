@@ -97,7 +97,7 @@ with $0 \leqslant \theta \leqslant \pi$ and $0 \leqslant \varphi \leqslant 2 \pi
 Use exponential coordinates of $SO(3)$, set
 
 <p align="center">
-  $e^{\hat{\omega}\theta}=R_{oc}$
+  $e^{\hat{\omega}\alpha}=R_{oc}$
 </p>
 
 <p align="center">
@@ -107,7 +107,7 @@ Use exponential coordinates of $SO(3)$, set
 which yields
 
 <p align="center">
-  $e^{\hat{\omega}\theta} \ \vec{p_0}=\vec{p_t}$
+  $e^{\hat{\omega}\alpha} \ \vec{p_0}=\vec{p_t}$
 </p>
 
 By active transformation interpretation, the equation above means $\vec{p_0}$ rotates about axis $\vec{\omega}$ by angle of $\theta$, ends up with $\vec{p_t}$.
@@ -124,27 +124,27 @@ As shown in the figure, take $\theta$ as the angle between the concurrent vector
   $\vec{\omega} = \frac{\vec{p_o}\times \vec{p_t}}{||\vec{p_0}\times \vec{p_t}||} = \frac{\vec{p_o}\times (-\vec{p_r})}{||\vec{p_0}\times (-\vec{p_r})||}$
 </p>
 
-The angle $\theta$ is given by 
+The angle $\alpha$ is given by 
 
 <p align="center">
-  $\theta = \cos^{-1} (\frac{\vec{p_0}\cdot \vec{p_t}}{||\vec{p_0}|| \cdot ||\vec{p_t}||}) = \cos^{-1} (\frac{\vec{p_0}\cdot (-\vec{p_r})}{||\vec{p_0}||^2}) $.
+  $\alpha = \cos^{-1} (\frac{\vec{p_0}\cdot \vec{p_t}}{||\vec{p_0}|| \cdot ||\vec{p_t}||}) = \cos^{-1} (\frac{\vec{p_0}\cdot (-\vec{p_r})}{||\vec{p_0}||^2}) $.
 </p>
 
 Thus, one solution will be 
 
 <p align="center">
-  $R_{oc}=e^{\hat{\omega}\theta}$.
+  $R_{oc}=e^{\hat{\omega}\alpha}$.
 </p>
 
 ### Eigen vectors
 
-Now, discuss other solutions. For a rotation $R_{oc}$, if the frame associated with it rotates about $\vec{p_0}$ by an angle of $\varphi$, the resulting orientation will be $R_{oc} \ e^{\hat{p_0}\varphi}$. Notice that $\vec{p_0}$ is an eigen vector of $e^{\hat{p_0} \varphi}$ with an eigen value $\lambda =1$. Thus,
+Now, discuss other solutions. For a rotation $R_{oc}$, if the frame associated with it rotates about $\vec{p_0}$ by an angle of $\beta$, the resulting orientation will be $R_{oc} \ e^{\hat{p_0}\beta}$. Notice that $\vec{p_0}$ is an eigen vector of $e^{\hat{p_0} \beta}$ with an eigen value $\lambda =1$. Thus,
 
 <p align="center">
-  $R_{oc} \ e^{\hat{p_0}\varphi} \ \vec{p_0} = R_{oc} \ \vec{p_0} = -\vec{p_r}$.
+  $R_{oc} \ e^{\hat{p_0}\beta} \ \vec{p_0} = R_{oc} \ \vec{p_0} = -\vec{p_r}$.
 </p>
 
-That means, for any $R_{oc}$ satisfies $R_{oc} \ \vec{p_0} = -\vec{p_r}$, $R_{oc} \ e^{\hat{p_0}\varphi}$ is also a solution, which corresponds to an extra rotation about $\vec{p_0}$ by an angle of $\varphi$. If $\varphi=0$, it reduces to the solution obtained by active transformation.
+That means, for any $R_{oc}$ satisfies $R_{oc} \ \vec{p_0} = -\vec{p_r}$, $R_{oc} \ e^{\hat{p_0}\beta}$ is also a solution, which corresponds to an extra rotation about $\vec{p_0}$ by an angle of $\beta$. If $\varphi=0$, it reduces to the solution obtained by active transformation.
 
 ### Solutions
 
