@@ -103,7 +103,7 @@ Use exponential coordinates of $SO(3)$, set
 which yields
 
 <p align="center">
-  $e^{\hat{\omega}\theta}\vec{p_0}=\vec{p_t}$
+  $e^{\hat{\omega}\theta} \ \vec{p_0}=\vec{p_t}$
 </p>
 
 By active transformation interpretation, the equation above means $\vec{p_0}$ rotates about axis \vec{\omega} by angle of $\theta$, ends up with $\vec{p_t}$.
@@ -117,7 +117,7 @@ There are multiple ways to solve this equation. One way is given as follows:
 As shown in the figure, take $\theta$ as the angle between the concurrent vectors $\vec{p_t}$ and $\vec{p_0}$, the rotational axis will be orthogonal to the plane formed by the two vectors, which can be calculated by cross product as
 
 <p align="center">
-  $\vec{\omega} = \frac{\vec{p_o}\cross \vec{p_t}}{||\vec{p_0}\cross \vec{p_t}||}$
+  $\vec{\omega} = \frac{\vec{p_o}\times \vec{p_t}}{||\vec{p_0}\times \vec{p_t}||}$
 </p>
 
 ## Authors
