@@ -118,7 +118,7 @@ There are multiple ways to solve the rotation $R_{oc}$. One way is given as foll
   <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method_2.png" width="235" height="200" />
 </p>
 
-As shown in the figure, take $\theta$ as the angle between the concurrent vectors $\vec{p_t}$ and $\vec{p_0}$, the rotational axis will be orthogonal to the plane formed by the two vectors, which can be calculated by cross product as
+As shown in the figure, take $\alpha$ as the angle between the concurrent vectors $\vec{p_t}$ and $\vec{p_0}$, the rotational axis will be orthogonal to the plane formed by the two vectors, which can be calculated by cross product as
 
 <p align="center">
   $\vec{\omega} = \frac{\vec{p_o}\times \vec{p_t}}{||\vec{p_0}\times \vec{p_t}||} = \frac{\vec{p_o}\times (-\vec{p_r})}{||\vec{p_0}\times (-\vec{p_r})||}$
