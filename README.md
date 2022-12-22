@@ -169,7 +169,7 @@ where
 </p>
 
 
-The parameters are $\theta$, $\varphi$ and $\beta$, $\vec{p_0}$ are given by the initial pose.
+The parameters are $\theta$, $\varphi$ and $\beta$. $\vec{p_0}$ is given by the initial condition.
 
 
 ## Authors
