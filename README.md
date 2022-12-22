@@ -151,7 +151,7 @@ That means, for any $R_{oc}$ satisfies $R_{oc} \ \vec{p_0} = -\vec{p_r}$, $R_{oc
 To conclude, the rigid body transformation $E_{oc}$ is given by 
 
 <p align="center">
-  $E_{oc}=g\left(R_{oc},\vec{p_r}\right)=g\left(e^{\hat{\omega}\alpha} \ e^{\hat{p_0}\beta},\vec{p_r}\right)$,
+  $E_{oc}=g\left(R_{oc},\vec{p_r}\right)=g\left(e^{\hat{\omega}\alpha} e^{\hat{p_0}\beta},\vec{p_r}\right)$,
 </p>
 
 where 
