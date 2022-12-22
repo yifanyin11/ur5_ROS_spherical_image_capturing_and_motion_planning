@@ -59,9 +59,7 @@ To register object1, move the end effector around, so that the marker can be vie
 ```
 roslaunch vision_guided_planning register_object1.launch
 ```
-A message will show up once if the transformation has been sent.
-
-Repeat the same procedure for object2, run
+A message will show up once if the transformation has been sent. Repeat the same procedure for object2,
 ```
 roslaunch vision_guided_planning register_object2.launch
 ```
@@ -73,6 +71,7 @@ To start the automatic version of image capturing, run
 roslaunch vision_guided_planning spherical_capturing.launch
 ```
 It will capture images for both objects registered, as if the camera is moving on a sphere and towards the object at all time.
+
 If rviz motion planning plugin is preferred, run
 ```
 roslaunch vision_guided_planning spherical_capturing_rviz.launch
