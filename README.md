@@ -67,7 +67,7 @@ In order to interpreate this goal, we make the following assumptions:
 * When performing the spherical scanning, the translation component of the rigid body transformation $E_{CO}$ is always equal to its initial value, only the rotation changes. That is 
 
 <p align="center">
-  $E_{CO}=g(R, \vec{p_0})$
+  $E_{CO}=g(R, \vec{p_0})$.
 </p>
 
 ### Spherical coordinate system
@@ -75,19 +75,19 @@ In order to interpreate this goal, we make the following assumptions:
 From the assumptions, we can write the expression for the transformation $E_{OC}$ as
 
 <p align="center">
-  $E_{OC}=g^{-1}\left(R, \vec{p}_0\right)=g\left(R^{T},\vec{p_r}\right)$
+  $E_{OC}=g^{-1}\left(R, \vec{p}_0\right)=g\left(R^{T},\vec{p_r}\right)$,
 </p>
 
 where
 
 <p align="center">
-  $\vec{p_r}=-R^{T}\vec{p_0}$
+  $\vec{p_r}=-R^{T}\vec{p_0}$.
 </p>
 
 In the object frame, the camera is on the sphere that centered at its origin. Thus, the origin of the camera frame in the view of the object, denoted as $\vec{p_r}$, can be determined in terms of the variables in spherical coordinate system as
 
 <p align="center">
-  $\vec{p}_r=\vec{f}(||\vec{p_0}||, \ \theta, \  \varphi)=[\ ||\vec{p_0}||\sin \theta \cos \varphi \quad ||\vec{p_0}||\sin \theta \sin \varphi \quad ||\vec{p_0}||\cos \theta\ ]^T$
+  $\vec{p}_r=\vec{f}(||\vec{p_0}||, \ \theta, \  \varphi)=[\ ||\vec{p_0}||\sin \theta \cos \varphi \quad ||\vec{p_0}||\sin \theta \sin \varphi \quad ||\vec{p_0}||\cos \theta\ ]^T$,
 </p>
 
 with $0 \leqslant \theta \leqslant \pi$ and $0 \leqslant \varphi \leqslant 2 \pi$.
