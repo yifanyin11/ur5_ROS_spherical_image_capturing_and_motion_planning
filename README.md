@@ -72,7 +72,7 @@ In order to interpreate this goal, we make the following assumptions:
 
 ### Spherical coordinate system
 
-From the assumptions, we can write the expression for the transformation $E_{OC}$ as
+From the assumptions, we can write the expression for the transformation $E_{oc}$ as
 
 <p align="center">
   $E_{oc}=g^{-1}\left(R_{co}, \vec{p}_0\right)=g\left(R^{T}_{co},\vec{p_r}\right)=g\left(R_{oc},\vec{p_r}\right)$,
