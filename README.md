@@ -45,6 +45,7 @@ source devel/setup.bash
 ### Executing program
 
 * Register two objects to ros tf tranform tree using Aruco markers
+
 To register object1, move the end effector around, so that the marker can be viewed in the camera mounted. Open a new terminal, run
 ```
 roslaunch vision_guided_planning register_object1.launch
