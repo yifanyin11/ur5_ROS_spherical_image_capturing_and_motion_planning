@@ -144,15 +144,32 @@ Now, discuss other solutions. For a rotation $R_{oc}$, if the frame associated w
   $R_{oc} \ e^{\hat{p_0}\beta} \ \vec{p_0} = R_{oc} \ \vec{p_0} = -\vec{p_r}$.
 </p>
 
-That means, for any $R_{oc}$ satisfies $R_{oc} \ \vec{p_0} = -\vec{p_r}$, $R_{oc} \ e^{\hat{p_0}\beta}$ is also a solution, which corresponds to an extra rotation about $\vec{p_0}$ by an angle of $\beta$. If $\varphi=0$, it reduces to the solution obtained by active transformation.
+That means, for any $R_{oc}$ satisfies $R_{oc} \ \vec{p_0} = -\vec{p_r}$, $R_{oc} \ e^{\hat{p_0}\beta}$ is also a solution, which corresponds to an extra rotation about $\vec{p_0}$ by an angle of $\beta$. If $\beta=0$, it reduces to the solution obtained by active transformation.
 
 ### Solutions
 
 To conclude, the rigid body transformation $E_{oc}$ is given by 
 
 <p align="center">
-  $E_{oc}=g\left(R_{oc},\vec{p_r}\right)$,
+  $E_{oc}=g\left(R_{oc},\vec{p_r}\right)=g\left(e^{\hat{\omega}\alpha} \ e^{\hat{p_0}\beta},\vec{p_r}\right)$,
 </p>
+
+where 
+
+<p align="center">
+  $\vec{\omega} = \frac{\vec{p_o}\times \vec{p_t}}{||\vec{p_0}\times \vec{p_t}||} = \frac{\vec{p_o}\times (-\vec{p_r})}{||\vec{p_0}\times (-\vec{p_r})||}$
+</p>
+
+<p align="center">
+  $\alpha = \cos^{-1} (\frac{\vec{p_0}\cdot \vec{p_t}}{||\vec{p_0}|| \cdot ||\vec{p_t}||}) = \cos^{-1} (\frac{\vec{p_0}\cdot (-\vec{p_r})}{||\vec{p_0}||^2}) $.
+</p>
+
+<p align="center">
+  $\vec{p}_r=\vec{f}(||\vec{p_0}||, \ \theta, \  \varphi)=[\ ||\vec{p_0}||\sin \theta \cos \varphi \quad ||\vec{p_0}||\sin \theta \sin \varphi \quad ||\vec{p_0}||\cos \theta\ ]^T$,
+</p>.
+
+The parameters are $\theta$, $\varphi$ and $\beta$, $\vec{p_0}$ are given by the initial pose.
+
 
 ## Authors
 
