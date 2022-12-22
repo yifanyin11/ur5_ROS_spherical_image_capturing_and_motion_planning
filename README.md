@@ -112,7 +112,7 @@ which yields
 
 By active transformation interpretation, the equation above means $\vec{p_0}$ rotates about axis $\vec{\omega}$ by angle of $\theta$, ends up with $\vec{p_t}$.
 
-There are multiple ways to solve this equation. One way is given as follows:
+There are multiple ways to solve the rotation $R^T$. One way is given as follows:
 
 <p align="center">
   <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method2.png" width="235" height="200" />
@@ -127,8 +127,21 @@ As shown in the figure, take $\theta$ as the angle between the concurrent vector
 The angle $\theta$ is given by 
 
 <p align="center">
-  $\theta = cos^{-1} (\frac{\vec{p_0}\cdot \vec{p_t}}{||\vec{p_0}|| \cdot ||\vec{p_t}||}) = cos^{-1} (\frac{\vec{p_0}\cdot (-\vec{p_r})}{||\vec{p_0}||^2} $
+  $\theta = \cos^{-1} (\frac{\vec{p_0}\cdot \vec{p_t}}{||\vec{p_0}|| \cdot ||\vec{p_t}||}) = \cos^{-1} (\frac{\vec{p_0}\cdot (-\vec{p_r})}{||\vec{p_0}||^2}) $
 </p>
+
+Thus, one solution will be 
+
+<p align="center">
+  $R^T=e^{\hat{\omega}\theta}$
+</p>
+
+### Eigen vectors
+
+Now, discuss other solutions. For a rotation $R^T$, if the frame associated with it rotates about $\vec{p_0}$ by an angle of $\varphi$, the resulting orientation will be $R^T \ e^{\hat{p_0}\phi}$. Notice that $\vec{p_0}$ is an eigen vector of $e^{\hat{p_0} \ \phi}$ with an eigen value $\lambda =1$. Thus,
+
+
+
 
 ## Authors
 
