@@ -146,6 +146,13 @@ Now, discuss other solutions. For a rotation $R_{oc}$, if the frame associated w
 
 That means, for any $R_{oc}$ satisfies $R_{oc} \ \vec{p_0} = -\vec{p_r}$, $R_{oc} \ e^{\hat{p_0}\varphi}$ is also a solution, which corresponds to an extra rotation about $\vec{p_0}$ by an angle of $\varphi$. If $\varphi=0$, it reduces to the solution obtained by active transformation.
 
+### Solutions
+
+To conclude, the rigid body transformation $E_{oc}$ is given by 
+
+<p align="center">
+  $E_{oc}=g\left(R_{oc},\vec{p_r}\right)$,
+</p>
 
 ## Authors
 
