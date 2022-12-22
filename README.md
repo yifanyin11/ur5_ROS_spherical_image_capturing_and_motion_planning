@@ -161,7 +161,7 @@ where
 </p>
 
 <p align="center">
-  $\vec{\omega} = \frac{\vec{p_o}\times (-\vec{p_r})}{||\vec{p_0}\times (-\vec{p_r})||}$,
+  $\vec{\omega} = \frac{\vec{p_0}\times (-\vec{p_r})}{||\vec{p_0}\times (-\vec{p_r})||}$,
 </p>
 
 <p align="center">
