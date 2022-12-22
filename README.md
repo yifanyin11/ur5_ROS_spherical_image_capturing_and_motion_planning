@@ -110,7 +110,7 @@ which yields
   $e^{\hat{\omega}\alpha} \ \vec{p_0}=\vec{p_t}$
 </p>
 
-By active transformation interpretation, the equation above means $\vec{p_0}$ rotates about axis $\vec{\omega}$ by angle of $\theta$, ends up with $\vec{p_t}$.
+By active transformation interpretation, the equation above means $\vec{p_0}$ rotates about axis $\vec{\omega}$ by angle of $\alpha$, ends up with $\vec{p_t}$.
 
 There are multiple ways to solve the rotation $R_{oc}$. One way is given as follows:
 
