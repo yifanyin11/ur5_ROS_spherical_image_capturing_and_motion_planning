@@ -74,7 +74,7 @@ To start the automatic version of image capturing, run
 ```
 roslaunch vision_guided_planning spherical_capturing.launch
 ```
-It will capture images for both objects registered, as if the camera is moving on a sphere and towards the object at all time.
+It will capture images for both objects registered, as if the camera is moving on a sphere and facing towards the object at all time.
 
 If rviz motion planning plugin is preferred, run
 ```
