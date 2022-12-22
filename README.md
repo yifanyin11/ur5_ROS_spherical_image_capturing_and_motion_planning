@@ -44,7 +44,6 @@ source devel/setup.bash
 
 ### Executing program
 
-* How to run the program
 * Step-by-step bullets
 ```
 code blocks for commands
