@@ -63,7 +63,7 @@ As shown in the figure, the origin of the object frame is at the center of an im
 ### Assumptions
 
 In order to interpreate this goal, we make the following assumptions:
-* In the camera frame, an initial pose has been given so that the camera is facing towards the object. The translation component of that initial pose, in the view of the camera frame, is $p_0$.
+* In the camera frame, an initial pose has been given so that the camera is facing towards the object. The translation component of that initial pose, in the view of the camera frame, is $\vec{p_0}$.
 * When performing the spherical scanning, the translation component of the rigid body transformation $E_{co}$ is always equal to its initial value, only the rotation changes. That is 
 
 <p align="center">
