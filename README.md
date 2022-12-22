@@ -127,7 +127,7 @@ As shown in the figure, take $\theta$ as the angle between the concurrent vector
 The angle $\theta$ is given by 
 
 <p align="center">
-  $\theta = cos^{-1} (\frac{\vec{p_0}\cdot \vec{p_t}}{||\vec{p_0}|| \cdot ||\vec{p_t}||})$
+  $\theta = cos^{-1} (\frac{\vec{p_0}\cdot \vec{p_t}}{||\vec{p_0}|| \cdot ||\vec{p_t}||}) = cos^{-1} (\frac{\vec{p_0}\cdot (-\vec{p_r})}{||\vec{p_0}||^2} $
 </p>
 
 ## Authors
