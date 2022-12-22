@@ -58,16 +58,16 @@ The core of spherical image capturing is the way of determining rigid body trans
   <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method1.png" width="355" height="300" />
 </p>
 
-As shown in the figure, the origin of the object frame is at the center of an imaginary sphere. Our goal is to calculate the transformation $E_{OC}$, such that the camera is moving on the sphere, and facing towards the object at all time.
+As shown in the figure, the origin of the object frame is at the center of an imaginary sphere. Our goal is to calculate the transformation $E_{oc}$, such that the camera is moving on the sphere, and facing towards the object at all time.
 
 ### Assumptions
 
 In order to interpreate this goal, we make the following assumptions:
 * In the camera frame, an initial pose has been given so that the camera is facing towards the object. The translation component of that initial pose, in the view of the camera frame, is $p_0$.
-* When performing the spherical scanning, the translation component of the rigid body transformation $E_{CO}$ is always equal to its initial value, only the rotation changes. That is 
+* When performing the spherical scanning, the translation component of the rigid body transformation $E_{co}$ is always equal to its initial value, only the rotation changes. That is 
 
 <p align="center">
-  $E_{CO}=g(R, \vec{p_0})$.
+  $E_{co}=g(R_{co}, \vec{p_0})$.
 </p>
 
 ### Spherical coordinate system
@@ -75,13 +75,13 @@ In order to interpreate this goal, we make the following assumptions:
 From the assumptions, we can write the expression for the transformation $E_{OC}$ as
 
 <p align="center">
-  $E_{OC}=g^{-1}\left(R, \vec{p}_0\right)=g\left(R^{T},\vec{p_r}\right)$,
+  $E_{oc}=g^{-1}\left(R_{co}, \vec{p}_0\right)=g\left(R^{T}_{co},\vec{p_r}\right)=g\left(R_{oc},\vec{p_r}\right)$,
 </p>
 
 where
 
 <p align="center">
-  $\vec{p_r}=-R^{T}\vec{p_0}$.
+  $\vec{p_r}=-R_{oc}\vec{p_0}$.
 </p>
 
 In the object frame, the camera is on the sphere that centered at its origin. Thus, the origin of the camera frame in the view of the object, denoted as $\vec{p_r}$, can be determined in terms of the variables in spherical coordinate system as
