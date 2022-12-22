@@ -30,17 +30,6 @@
 	name="camerafeed">
   </node>
   
-  <node pkg="robotiq_2f_gripper_control"
-	type="Robotiq2FGripperRtuNode.py"
-	name="Robotiq2FGripperRtuNode"
-	args="/dev/ttyUSB0">
-  </node>
-
-  <node pkg="robotiq_2f_gripper_control"
-	type="Robotiq2FGripperSimpleControllerNode.py"
-	name="Robotiq2FGripperSimpleController">
-  </node>
-  
   <node pkg="aruco_ros" type="single" name="aruco" ns="camera/color">
     <remap from="/image" to="image_raw" />
     <remap from="/camera_info" to="camera_info" />
@@ -61,6 +50,12 @@
     <param name="camera_frame"       value="camera_link"/>
     <param name="marker_frame"       value="marker2" />
     <param name="corner_refinement"  value="SUBPIX" />
+  </node>
+
+  <node pkg="vision_guided_planning" 
+    type="image_writer_server"
+    name="image_writer_server"  
+    output="screen" >
   </node>
 
   <node pkg="rviz"
