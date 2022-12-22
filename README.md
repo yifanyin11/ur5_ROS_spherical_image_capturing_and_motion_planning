@@ -44,7 +44,7 @@ source devel/setup.bash
 
 ### Executing program
 
-1. Launch the environment
+* Launch the environment
 
 To activate the software setups, run
 
