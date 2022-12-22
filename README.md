@@ -174,8 +174,6 @@ The parameters are $\theta$, $\varphi$ and $\beta$. $\vec{p_0}$ is given by the 
 
 ## Authors
 
-Contributors names and contact info
-
 Yifan Yin
 
 Email: [yyin34@jhu.edu](yyin34@jhu.edu)
