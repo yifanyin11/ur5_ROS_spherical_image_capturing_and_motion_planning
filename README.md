@@ -55,7 +55,7 @@ code blocks for commands
 The core of spherical image capturing is the way of determining rigid body transformations of the camera link with respect to the object. 
 
 <p align="center">
-  <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method1.png" width="355" height="300" />
+  <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method_1.png" width="355" height="300" />
 </p>
 
 As shown in the figure, the origin of the object frame is at the center of an imaginary sphere. Our goal is to calculate the transformation $E_{oc}$, such that the camera is moving on the sphere, and facing towards the object at all time.
@@ -115,7 +115,7 @@ By active transformation interpretation, the equation above means $\vec{p_0}$ ro
 There are multiple ways to solve the rotation $R_{oc}$. One way is given as follows:
 
 <p align="center">
-  <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method2.png" width="235" height="200" />
+  <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method_2.png" width="235" height="200" />
 </p>
 
 As shown in the figure, take $\theta$ as the angle between the concurrent vectors $\vec{p_t}$ and $\vec{p_0}$, the rotational axis will be orthogonal to the plane formed by the two vectors, which can be calculated by cross product as
