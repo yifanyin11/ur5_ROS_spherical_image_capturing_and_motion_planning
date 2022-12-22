@@ -90,6 +90,7 @@ In the object frame, the camera is on the sphere that centered at its origin. Th
   $\vec{p}_r=\vec{f}(||\vec{p_0}||, \ \theta, \  \varphi)=[\ ||\vec{p_0}||\sin \theta \cos \varphi \quad ||\vec{p_0}||\sin \theta \sin \varphi \quad ||\vec{p_0}||\cos \theta\ ]^T$
 </p>
 
+
 ## Authors
 
 Contributors names and contact info
