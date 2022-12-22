@@ -127,20 +127,24 @@ As shown in the figure, take $\theta$ as the angle between the concurrent vector
 The angle $\theta$ is given by 
 
 <p align="center">
-  $\theta = \cos^{-1} (\frac{\vec{p_0}\cdot \vec{p_t}}{||\vec{p_0}|| \cdot ||\vec{p_t}||}) = \cos^{-1} (\frac{\vec{p_0}\cdot (-\vec{p_r})}{||\vec{p_0}||^2}) $
+  $\theta = \cos^{-1} (\frac{\vec{p_0}\cdot \vec{p_t}}{||\vec{p_0}|| \cdot ||\vec{p_t}||}) = \cos^{-1} (\frac{\vec{p_0}\cdot (-\vec{p_r})}{||\vec{p_0}||^2}) $.
 </p>
 
 Thus, one solution will be 
 
 <p align="center">
-  $R^T=e^{\hat{\omega}\theta}$
+  $R^T=e^{\hat{\omega}\theta}$.
 </p>
 
 ### Eigen vectors
 
-Now, discuss other solutions. For a rotation $R^T$, if the frame associated with it rotates about $\vec{p_0}$ by an angle of $\varphi$, the resulting orientation will be $R^T \ e^{\hat{p_0}\phi}$. Notice that $\vec{p_0}$ is an eigen vector of $e^{\hat{p_0} \ \phi}$ with an eigen value $\lambda =1$. Thus,
+Now, discuss other solutions. For a rotation $R^T$, if the frame associated with it rotates about $\vec{p_0}$ by an angle of $\varphi$, the resulting orientation will be $R^T \ e^{\hat{p_0}\varphi}$. Notice that $\vec{p_0}$ is an eigen vector of $e^{\hat{p_0} \ \varphi}$ with an eigen value $\lambda =1$. Thus,
 
+<p align="center">
+  $R^T \ e^{\hat{p_0}\varphi} \ \vec{p_0} = R^T \ \vec{p_0} = -\vec{p_r}$.
+</p>
 
+That means, for any $R^T$ satisfies $R^T \ \vec{p_0} = -\vec{p_r}$, $R^T \ e^{\hat{p_0}\varphi}$ is also a solution, which corresponds to an extra rotation about $\vec{p_0}$ by an angle of $\varphi$. If $\varphi=0$, it reduces to the solution obtained by active transformation.
 
 
 ## Authors
