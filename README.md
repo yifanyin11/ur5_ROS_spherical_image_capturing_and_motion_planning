@@ -97,10 +97,28 @@ with $0 \leqslant \theta \leqslant \pi$ and $0 \leqslant \varphi \leqslant 2 \pi
 Use exponential coordinates of $SO(3)$, set
 
 <p align="center">
-  $e^{\hat{\omega}\theta}=R^T$
+  $e^{\hat{\omega}\theta}=R^T$, $\vec{p_t}=-\vec{p_r}$
 </p>
 
+which yields
 
+<p align="center">
+  $e^{\hat{\omega}\theta}\vec{p_0}=\vec{p_t}$
+</p>
+
+By active transformation interpretation, the equation above means $\vec{p_0}$ rotates about axis \vec{\omega} by angle of $\theta$, ends up with $\vec{p_t}$.
+
+There are multiple ways to solve this equation. One way is given as follows:
+
+<p align="center">
+  <img src="https://github.com/yifanyin11/ur5_ROS_spherical_image_capturing_and_motion_planning/blob/main/repo_data/method2.png" width="355" height="300" />
+</p>
+
+As shown in the figure, take $\theta$ as the angle between the concurrent vectors $\vec{p_t}$ and $\vec{p_0}$, the rotational axis will be orthogonal to the plane formed by the two vectors, which can be calculated by cross product as
+
+<p align="center">
+  $\vec{\omega} = \frac{\vec{p_o}\cross \vec{p_t}}{||\vec{p_0}\cross \vec{p_t}||}$
+</p>
 
 ## Authors
 
