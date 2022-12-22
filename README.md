@@ -43,6 +43,7 @@ source devel/setup.bash
 ```
 
 ### Executing program
+
 * Launch the environment
 
 To activate the software setups, run
@@ -52,6 +53,7 @@ roslaunch vision_guided_planning vision_guided_planning.launch
 ```
 It will start the robot driver, rviz, camera driver and activate all other necessary settings.
 
+<p>&nbsp;</p>
 
 * Register two objects to tf tranform tree using Aruco markers
 
@@ -63,6 +65,8 @@ A message will show up once if the transformation has been sent. Repeat the same
 ```
 roslaunch vision_guided_planning register_object2.launch
 ```
+
+<p>&nbsp;</p>
 
 * Perform spherical image capturing
 
